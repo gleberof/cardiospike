@@ -1,0 +1,25 @@
+version: "1.0"
+services:
+  star:
+    container_name: cardiospike_hacaton
+    build:
+      context: .
+    ports:
+      - 6006:6006
+    volumes:
+      - type: bind
+        source: ./data
+        target: /cardiospike/data/
+      - type: bind
+        source: ./data/submissions
+        target: /cardiospike/data/submissions
+      - type: bind
+        source: ./data/model-checkpoints
+        target: /cardiospike/data/model-checkpoints
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
