@@ -29,17 +29,16 @@ ENV POETRY_NO_INTERACTION=1 \
 ENV POETRY_HOME="$HOME/opt/poetry" \
     VENV_PATH="$HOME/.local/"
 
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH" POETRY_VERSION=1.1.4
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH" POETRY_VERSION=1.1.6
 
 RUN mkdir $HOME/opt/ && \
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.8 - &&\
     poetry config virtualenvs.create false
 
-WORKDIR ./emergency
+WORKDIR cardiospike
 
-COPY ../hackaton/pyproject.toml poetry.lock ./
-
-RUN mkdir src && touch src/__init__.py  # a dummy src directory
-RUN poetry install --no-dev  # this will install all production dependencies
-RUN rm -rf src
+COPY pyproject.toml poetry.lock ./
+RUN poetry install
 COPY . .
+RUN poetry install
+RUN rm -rf $HOME/.cache/pypoetry
