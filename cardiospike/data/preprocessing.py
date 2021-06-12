@@ -17,10 +17,10 @@ class TrainValIterator:
         self.kf = KFold(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
 
     def __iter__(self):
-        for train_ids, val_ids in self.kf.split(self.data['id'].unique()):
+        for train_ids, val_ids in self.kf.split(self.data["id"].unique()):
             data = self.data.copy()
-            train_df = data.loc[data['id'].isin(train_ids)].reset_index(drop=True)
-            val_df = data.loc[data['id'].isin(val_ids)].reset_index(drop=True)
+            train_df = data.loc[data["id"].isin(train_ids)].reset_index(drop=True)
+            val_df = data.loc[data["id"].isin(val_ids)].reset_index(drop=True)
 
             train_df, val_df, scaler = prepare_data(train_df=train_df, val_df=val_df)
 
