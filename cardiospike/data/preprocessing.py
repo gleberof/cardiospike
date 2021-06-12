@@ -11,7 +11,7 @@ def prepare_data(train_df, val_df, numerical_features=["x"]):  # noqa
     return train_df, val_df, scaler
 
 
-class TrainValIterator:
+class TrainValGenerator:
     def __init__(self, data, n_splits=5, shuffle=True, random_state=42):
         self.data = data
         self.kf = KFold(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
