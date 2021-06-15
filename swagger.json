@@ -14,9 +14,9 @@
   },
   "paths" : {
     "/get_predict" : {
-      "get" : {
+      "post" : {
         "summary" : "Get predict on RR data provided",
-        "operationId" : "getPredict",
+        "operationId" : "get_predict",
         "consumes" : [ "application/json" ],
         "parameters" : [ {
           "in" : "body",
