@@ -6,6 +6,8 @@ services:
       context: .
     ports:
       - $API_PORT:$API_PORT
+    networks:
+      - api
 #    deploy:
 #      resources:
 #        reservations:
@@ -16,19 +18,21 @@ services:
     env_file:
       - .env
     command: "uvicorn cardiospike.api.app:app --port $API_PORT --host 0.0.0.0"
-#  web:
-#    container_name: worker
-#    build:
-#      context: .
-#    ports:
-#      - 6006:6006
-#    volumes:
-#      - type: bind
-#        source: ./data
-#        target: /cardiospike/data/
-#      - type: bind
-#        source: ./data/submissions
-#        target: /cardiospike/data/submissions
-#      - type: bind
-#        source: ./data/model-checkpoints
-#        target: /cardiospike/data/model-checkpoints
+  web:
+    container_name: worker
+    build:
+      context: .
+    ports:
+      - $WEB_PORT:$WEB_PORT
+    networks:
+      - api
+    volumes:
+      - type: bind
+        source: ./data
+        target: /cardiospike/data/
+    env_file:
+      - .env
+    command: "gunicorn --workers=5 --threads=2 --bind 0.0.0.0:$WEB_PORT cardiospike.web.app:app"
+
+networks:
+  api:
