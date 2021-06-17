@@ -25,6 +25,11 @@ plotly = "^4.14.3"
 uvicorn = "^0.14.0"
 fastapi = "^0.65.2"
 python-dotenv = "^0.17.1"
+Flask = "^2.0.1"
+dash = "^1.20.0"
+gunicorn = "^20.1.0"
+importlib = "^1.0.4"
+types-requests = "^0.1.11"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

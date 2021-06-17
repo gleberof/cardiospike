@@ -14,10 +14,10 @@ class RR(BaseModel):
 
 class Predictions(BaseModel):
     study: str = study_field
-    predictions: List[int] = Field(
+    predictions: List[float] = Field(
         title="predictions", description="list of anomaly predictions (0 or 1)", example=[0, 0, 1, 1, 1, 0]
     )
-    errors: List[int] = Field(title="errors", description="list errors (0 or 1)", example=[1, 0, 0, 0, 0, 0])
+    errors: List[float] = Field(title="errors", description="list errors (0 or 1)", example=[1, 0, 0, 0, 0, 0])
 
 
 class Model500(BaseModel):
