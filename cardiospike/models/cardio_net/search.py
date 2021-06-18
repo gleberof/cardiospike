@@ -65,7 +65,11 @@ def search(cfg: SearchConfig):
     pruner = optuna.pruners.MedianPruner()
 
     study = optuna.create_study(
-        direction="minimize", storage=OPTUNA_STORAGE_URL, pruner=pruner, study_name=f"cardiospike/{cfg.study_name}"
+        direction="minimize",
+        storage=OPTUNA_STORAGE_URL,
+        pruner=pruner,
+        study_name=f"cardiospike/{cfg.study_name}",
+        load_if_exists=True,
     )
     study.optimize(objective, n_trials=cfg.n_trials)
 
