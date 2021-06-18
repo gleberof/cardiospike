@@ -50,8 +50,16 @@ class SearchConfig:
 
 
 def search(cfg: SearchConfig):
-    def objective(trial):
+    def objective(trial: optuna.Trial):
         pruning_callback = PyTorchLightningPruningCallback(monitor="Val/loss", trial=trial)
+
+        cfg.train.cardio_system.alpha = trial.suggest_float("alpha", 0.4, 0.6)
+        cfg.train.cardio_system.step_ahead = trial.suggest_int("step_ahead", 3, 6)
+        cfg.train.cardio_system.lr = trial.suggest_loguniform("lr", 1e-5, 1e-3)
+
+        cfg.train.cardio_system.channels = int(trial.suggest_loguniform("channels", 16, 256))
+        cfg.train.cardio_system.top_classifier_units = trial.suggest_int("top_classifier_units", 64, 1024)
+
         return train(cfg=cfg.train, pruning_callback=pruning_callback)
 
     pruner = optuna.pruners.MedianPruner()
