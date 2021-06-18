@@ -19,7 +19,7 @@ class Lookahead(Optimizer):
     Paper: `Lookahead Optimizer: k steps forward, 1 step back` - https://arxiv.org/abs/1907.08610
     """
 
-    def __init__(self, base_optimizer, alpha=0.5, k=6):
+    def __init__(self, base_optimizer, alpha=0.5, k=6):  # noqa
         if not 0.0 <= alpha <= 1.0:
             raise ValueError(f"Invalid slow update rate: {alpha}")
         if not 1 <= k:
@@ -205,7 +205,7 @@ class Ralamb(Optimizer):
 
 
 class CardioDataset(Dataset):
-    def __init__(self, df, win_size=33, aug=None):
+    def __init__(self, df, win_size=33, aug=None, bar=None):
         self.df = df.sort_values(["id", "time"]).reset_index(drop=True).copy()
         self.win_size = win_size
 
@@ -224,12 +224,16 @@ class CardioDataset(Dataset):
                 self.win_end.append(i + win_size // 2 + 1 - qdf.shape[0])
                 self.end_index.append(min(total_len + qdf.shape[0], total_len + i + win_size // 2 + 1))
             total_len += qdf.shape[0]
-        self.preproc()
 
-    def preproc(self):
+        self.preproc(bar=bar)
+
+    def preproc(self, bar=None):
+        bar = bar if bar is not None else tqdm(total=self.df.shape[0])
         N = self.df.shape[0]
+
         self.X = np.zeros((N, self.win_size, 2))
-        for idx in tqdm(range(N)):
+
+        for idx in range(N):
             i0 = self.start_index[idx]
             i1 = self.end_index[idx]
             s = i1 - i0
@@ -254,13 +258,12 @@ class CardioDataset(Dataset):
                     assert i1 - i0 == self.win_size
                     self.X[idx, :, i], _ = scale_ts(q)  # q #
 
+            bar.update(n=1)
+
     def __len__(self):
         return self.df.shape[0]
 
     def __getitem__(self, idx):
-        i0 = self.start_index[idx]
-        i1 = self.end_index[idx]
-
         x = self.X[idx]
 
         if (self.aug is not None) and (np.random.rand() < self.aug):
@@ -271,4 +274,6 @@ class CardioDataset(Dataset):
             else:
                 x -= aa
 
-        return {"x": x, "y": [self.df.y.values[idx]], "start": i0, "end": i1}
+        y = self.df.y.values[idx].astype("float32")
+
+        return {"x": x.astype("float32"), "y": y}

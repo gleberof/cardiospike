@@ -3,8 +3,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 
-from cardiospike import TRAIN_DATA_PATH
-
 
 def clean_pulse(df):
     df["pulse"] = 60.0 * 1000.0 / df["x"]
@@ -32,18 +30,22 @@ def scale_time_ts(vls):
     return sc.fit_transform(vls.reshape(-1, 1)).ravel()
 
 
-def load_train():
-    df = pd.read_csv(TRAIN_DATA_PATH)
+def load_df(path):
+    df = pd.read_csv(path)
     df = clean_pulse(df)
     df["log_x"] = np.log1p(df["x"].values)
 
     return df
 
 
-def scale_train_valid(train_df, valid_df):
+def scale_train_valid(train_df, val_df, test_df=None):
     for feat in ["log_x", "x"]:
-        sc = RobustScaler(quantile_range=(20, 95))
-        sc.fit(train_df[feat].values.reshape(-1, 1))
-        train_df[feat] = sc.transform(train_df[feat].values.reshape(-1, 1))
-        valid_df[feat] = sc.transform(valid_df[feat].values.reshape(-1, 1))
-    return train_df, valid_df
+        scaler = RobustScaler(quantile_range=(20, 95))
+        scaler.fit(train_df[feat].values.reshape(-1, 1))
+        train_df[feat] = scaler.transform(train_df[feat].values.reshape(-1, 1))
+        val_df[feat] = scaler.transform(val_df[feat].values.reshape(-1, 1))
+
+        if test_df is not None:
+            test_df[feat] = scaler.transform(test_df[feat].values.reshape(-1, 1))
+
+    return train_df, val_df, test_df, scaler

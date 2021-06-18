@@ -1,11 +1,14 @@
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any, Optional, Tuple
 
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from hydra.core.config_store import ConfigStore
+from torch.nn import BCEWithLogitsLoss
 
 from cardiospike.torch_utils import Lookahead, Ralamb
+from cardiospike.utils.math import threshold_search
 
 
 class AttentionWeightedAverage(nn.Module):
@@ -39,26 +42,11 @@ class AttentionWeightedAverage(nn.Module):
             return output, None
 
 
-@dataclass
-class CardioNetConfig:
-    win_size: int = 17
-    channels: int = 32
-    top_classifier_units: int = 512
-    rnn_units: int = 16
-    kern_sizes: List[int] = field(default_factory=lambda: [3, 5, 7, 9])
-
-    def register(self):
-        cs = ConfigStore.instance()
-        cs.store(node=self.__class__, name="cardio_net")
-
-
 class CardioNet(nn.Module):
-    def __init__(
-        self, output_size=1, channels=32, top_classifier_units=512, rnn_units=16, kern_sizes=[3, 5, 7, 9]
-    ):  # noqa
+    def __init__(self, output_size=1, channels=32, top_classifier_units=512, rnn_units=16):  # noqa
         super().__init__()
 
-        self.kern_sizes = kern_sizes
+        self.kern_sizes = [3, 5, 7, 9]
 
         self.convs = nn.ModuleDict(
             {
@@ -118,3 +106,96 @@ class CardioNet(nn.Module):
 def Over9000(params, alpha=0.5, k=6, *args, **kwargs):
     ralamb = Ralamb(params, *args, **kwargs)
     return Lookahead(ralamb, alpha, k)
+
+
+@dataclass
+class CardioSystemConfig:
+    channels: int = 32
+    top_classifier_units: int = 512
+    rnn_units: int = 16
+
+    lr: float = 1e-3
+    alpha: float = 0.5
+    step_ahead: int = 6
+
+    _target_: str = "cardiospike.models.cardio_net.neural.CardioSystem"
+
+    @classmethod
+    def register(cls):
+        cs = ConfigStore.instance()
+        cs.store(node=cls, name="cardio_system")
+
+
+class CardioSystem(pl.LightningModule):
+    def __init__(
+        self, output_size=1, channels=32, top_classifier_units=512, rnn_units=16, lr=1e-3, alpha=0.5, step_ahead=6
+    ):
+        super().__init__()
+
+        self.save_hyperparameters(
+            {
+                "lr": lr,
+                "alpha": alpha,
+                "step_ahead": step_ahead,
+                "channels": channels,
+                "top_classifier_units": top_classifier_units,
+                "rnn_units": rnn_units,
+                "hp_metric": -1,
+            }
+        )
+
+        self.model = CardioNet(
+            output_size=output_size, channels=channels, top_classifier_units=top_classifier_units, rnn_units=rnn_units
+        )
+        self.loss = BCEWithLogitsLoss()
+        self.thresh = None
+
+    def forward(self, *args, **kwargs) -> Any:
+        return self.model(*args, **kwargs)
+
+    def training_step(self, batch, batch_index):
+        return self.common_step(batch, batch_index, "Train")
+
+    def validation_step(self, batch, batch_index):
+        return self.common_step(batch, batch_index, "Val")
+
+    def test_step(self, batch, batch_index):
+        return self.common_step(batch, batch_index, "Test")
+
+    def validation_epoch_end(self, outputs) -> None:
+        self.common_epoch_end(outputs, "Val")
+
+    def test_epoch_end(self, outputs):
+        self.hparams.hp_metric = self.common_epoch_end(outputs, "Test")
+        self.logger.log_hyperparams(self.hparams)
+
+    def common_step(self, batch, batch_idx, mode):
+        inpts = batch["x"]
+        actual = batch["y"]
+        proba = self.model(inpts).flatten()
+
+        loss = self.loss(proba, actual)
+
+        self.log(f"{mode}/loss", loss)
+
+        return {"loss": loss, "proba": proba, "actual": actual}
+
+    def common_epoch_end(self, outputs, mode):
+        actual = torch.cat([out["actual"] for out in outputs])
+        proba = torch.cat([out["proba"] for out in outputs])
+
+        pred = torch.sigmoid(proba)
+
+        best_th, best_score = threshold_search(actual.cpu().numpy(), pred.cpu().numpy())
+
+        self.log(f"{mode}/thresh", best_th.item())
+        self.log(f"{mode}/f1_score", best_score.item())
+
+        return best_score
+
+    def configure_optimizers(self):
+        optimizer = Lookahead(
+            torch.optim.AdamW(self.model.parameters(), lr=self.hparams.lr), self.hparams.alpha, self.hparams.step_ahead
+        )
+
+        return optimizer
