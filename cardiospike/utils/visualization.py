@@ -1,13 +1,34 @@
 import plotly.graph_objs as go
 
 
+def anomaly_count(array_predictions):
+    # count -> 3
+    count = 0
+    i = 0
+    while i < len(array_predictions) - 1:
+        if array_predictions[i]:
+            while array_predictions[i] and array_predictions[i + 1]:
+                i += 1
+            count += 1
+        i += 1
+    return count
+
+
 def plot_rr(t, anomaly_thresh=0.4):
     fig = go.Figure()
     fig.add_scatter(x=t["time"], y=t["x"], line_color="#e83e8c", line_width=3, name="RR-интервалы")
 
     mask = t["anomaly_proba"] > anomaly_thresh
 
+    num_anomalies = anomaly_count(mask)
+
     factor = ((t["anomaly_proba"] - anomaly_thresh) / max(t["anomaly_proba"] - anomaly_thresh))[mask]
+
+    plot_name = (
+        "RR Ритмограмма. Все чисто!"
+        if num_anomalies == 0
+        else f"RR Ритмограмма. ❗ Обнаружено {num_anomalies} аномалий ❗"
+    )
 
     fig.add_scatter(
         x=t["time"][mask],
@@ -19,9 +40,10 @@ def plot_rr(t, anomaly_thresh=0.4):
         marker_line=dict(color="#dc3545", width=3 * factor),
         marker_opacity=factor,
         name="Аномалии",
+        hovertext=[f"Вероятность аномалии: {p:.0%}" for p in t["anomaly_proba"][mask]],
     )
     fig.update_layout(
-        title_text="RR Ритмограмма",
+        title_text=plot_name,
         title_font_color="#1940ff",
         title_font_size=20,
         plot_bgcolor="#f8f9fa",
@@ -50,4 +72,4 @@ def plot_rr(t, anomaly_thresh=0.4):
     fig.update_xaxes(**axis_config)
     fig.update_yaxes(**axis_config)
 
-    return fig
+    return fig, num_anomalies

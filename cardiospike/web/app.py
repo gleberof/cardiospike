@@ -25,15 +25,25 @@ app = Flask(__name__, static_folder=STATIC_DIR)
 API_ENDPOINT = f"http://{API_HOST}:{API_PORT}"
 PREDICT_ENDPOINT = f"{API_ENDPOINT}/predict"
 
+DEFAULT_SAMPLE = "8"
+
 
 @app.route("/callback", methods=["POST", "GET"])
-def cb():
-    return gm(request.args.get("data"))
+def js_callback():
+    sample = request.args.get("data")
+
+    if sample is None:
+        sample = DEFAULT_SAMPLE
+
+    graph_json = process_sample(sample=sample)
+
+    return graph_json
 
 
 @app.route("/")
 def index():
-    return render_template("index.html", graphJSON=gm(), users=users)
+
+    return render_template("index.html", graphJSON=process_sample(), users=users)
 
 
 def get_predictions(study: str, sequence: List[int]):
@@ -43,6 +53,7 @@ def get_predictions(study: str, sequence: List[int]):
             "sequence": sequence,
         }
     )
+
     headers = {"Content-Type": "application/json"}
     session = requests.Session()
     session.trust_env = False
@@ -52,7 +63,7 @@ def get_predictions(study: str, sequence: List[int]):
         return response.json()
 
 
-def gm(sample="8"):
+def process_sample(sample=DEFAULT_SAMPLE):
     t = df.loc[df["id"] == int(sample)].sort_values("time").reset_index(drop=True)
     results = get_predictions(sample, t["x"].tolist())
 
@@ -61,7 +72,7 @@ def gm(sample="8"):
     t["anomaly_proba"] = results["anomaly_proba"]
     t["error"] = results["errors"]
 
-    fig = plot_rr(t, anomaly_thresh=anomaly_thresh)
+    fig, num_anomalies = plot_rr(t, anomaly_thresh=anomaly_thresh)
 
     graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 

@@ -14,7 +14,7 @@ body {
     line-height: 1.5;
     color: #212529;
     text-align: left;
-    background-color: #fff;
+    background-color: #f8f9fa;
 }
 *::-webkit-scrollbar-thumb {
     background: #1940FF;

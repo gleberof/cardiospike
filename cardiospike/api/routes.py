@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 from cardiospike import SMART_MODEL_PATH
+from cardiospike.api.inference import SmartModel
 from cardiospike.api.models import RR, Model500, Predictions
-from cardiospike.inference import SmartModel
 
 router = APIRouter()
 

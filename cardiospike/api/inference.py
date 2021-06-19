@@ -59,7 +59,6 @@ class DummyModel:
 
 class SmartModel:
     def __init__(self, path_to_model: str):
-        print(path_to_model)
         self.model = joblib.load(path_to_model)
         self.anomaly_thresh = 0.49288617615370894
         self.error_thresh = 0.5
