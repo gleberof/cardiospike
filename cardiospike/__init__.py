@@ -9,10 +9,18 @@ load_dotenv()
 NUM_CORES = multiprocessing.cpu_count()
 
 ROOT_DIR = Path(__file__).parents[0].parents[0]
+
+PACKAGE_DIR = ROOT_DIR / "cardiospike"
+
+
 DATA_DIR = ROOT_DIR / "data"
 SUBMISSIONS_DIR = DATA_DIR / "submissions"
+SMART_MODEL_PATH = DATA_DIR / "web_model.joblib"
+TEST_PATH = DATA_DIR / "test.csv"
+WELLTORY_PATH = DATA_DIR / "welltory.csv"
 
 TRAIN_DATA_PATH = DATA_DIR / "train.csv"
+TEST_DATA_PATH = DATA_DIR / "test.csv"
 
 CHECKPOINTS_DIR: str = os.environ.get("CHECKPOINTS_DIR"), str(DATA_DIR / "checkpoints")  # type: ignore
 LOGS_DIR: str = os.environ.get("LOGS_DIR"), str(DATA_DIR / "logs")  # type: ignore

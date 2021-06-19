@@ -9,17 +9,13 @@ def read_csv(path: str) -> Generator[Dict[str, str], None, None]:
             yield line
 
 
-def confusion_matrix(
-    true_path: str, pred_path: str, key_columns: List[str], value_column: str
-) -> List[List[int]]:
+def confusion_matrix(true_path: str, pred_path: str, key_columns: List[str], value_column: str) -> List[List[int]]:
     assert os.path.isfile(true_path), f"{true_path} not found"
     assert os.path.isfile(pred_path), f"{pred_path} not found"
 
     counts = [[0, 0], [0, 0]]  # [[tn, fp], [fn, tp]]
 
-    for line_num, (true_row, pred_row) in enumerate(
-        zip(read_csv(true_path), read_csv(pred_path))
-    ):
+    for line_num, (true_row, pred_row) in enumerate(zip(read_csv(true_path), read_csv(pred_path))):
         for col in key_columns + [value_column]:
             assert col in true_row, f"no {col} in ground truth (line {line_num})"
             assert col in pred_row, f"no {col} in prediction (line {line_num})"
