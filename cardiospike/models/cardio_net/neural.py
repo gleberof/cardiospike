@@ -172,7 +172,7 @@ class CardioSystem(pl.LightningModule):
 
     def test_epoch_end(self, outputs):
         self.hparams.hp_metric = self.common_epoch_end(outputs, "Test")
-        self.logger.log_hyperparams(self.hparams)
+        self.log("hp_metric", self.hparams.hp_metric)
 
     def common_step(self, batch, batch_idx, mode):
         inpts = batch["x"]

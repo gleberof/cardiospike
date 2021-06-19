@@ -1,12 +1,12 @@
 import os
 from dataclasses import dataclass
+from uuid import uuid1
 
 import hydra
 import optuna
 import sqlalchemy
 from dotenv import load_dotenv
 from hydra.core.config_store import ConfigStore
-from omegaconf import MISSING
 from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
 
 from cardiospike import DATA_DIR
@@ -37,7 +37,7 @@ OPTUNA_STORAGE_URL = str(
 
 @dataclass
 class SearchConfig:
-    study_name: str = MISSING
+    study_name: str = "CardioSpike/fold-in-fold-cnn-2"
 
     n_trials: int = 100
     train: TrainConfig = TrainConfig()
@@ -53,12 +53,14 @@ def search(cfg: SearchConfig):
     def objective(trial: optuna.Trial):
         pruning_callback = PyTorchLightningPruningCallback(monitor="Val/loss", trial=trial)
 
+        cfg.train.experiment_name = f"{cfg.study_name}/{uuid1()}"
+
         cfg.train.cardio_system.alpha = trial.suggest_float("alpha", 0.4, 0.6)
         cfg.train.cardio_system.step_ahead = trial.suggest_int("step_ahead", 3, 6)
         cfg.train.cardio_system.lr = trial.suggest_loguniform("lr", 1e-5, 1e-3)
 
-        cfg.train.cardio_system.channels = int(trial.suggest_loguniform("channels", 16, 256))
-        cfg.train.cardio_system.top_classifier_units = trial.suggest_int("top_classifier_units", 64, 1024)
+        cfg.train.cardio_system.channels = trial.suggest_int("channels", 16, 256, log=True)
+        cfg.train.cardio_system.top_classifier_units = trial.suggest_int("top_classifier_units", 64, 1024, log=True)
 
         return train(cfg=cfg.train, pruning_callback=pruning_callback)
 

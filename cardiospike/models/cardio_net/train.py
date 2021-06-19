@@ -1,17 +1,19 @@
 import os
 from dataclasses import dataclass
+from uuid import uuid1
 
 import hydra
 import numpy as np
 import pytorch_lightning as pl
 from hydra.core.config_store import ConfigStore
 from joblib import Parallel, delayed, dump, load
+from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from cardiospike import NUM_CORES, S3_CHECKPOINTS_DIR, S3_LOGS_DIR, TRAIN_DATA_PATH
 from cardiospike.data.preprocessing import load_df, scale_train_valid
-from cardiospike.models.cardio_net.neural import CardioSystemConfig
+from cardiospike.models.cardio_net.neural import CardioSystem, CardioSystemConfig
 from cardiospike.models.cardio_net.utils import FOLDS_DATA_DIR, FoldInFoldGenerator
 from cardiospike.torch_utils import CardioDataset
 
@@ -57,11 +59,12 @@ def dump_folds_data(win_size=17, output_dir=FOLDS_DATA_DIR, num_workers=NUM_CORE
 
 @dataclass
 class TrainConfig:
+    experiment_name: str = f"CardioNet/{uuid1()}"
     win_size: int = 17
     num_workers: int = NUM_CORES - 1
     batch_size: int = 1024
     patience: int = 50
-    max_epochs: int = 150
+    max_epochs: int = 200
     gpus: int = 1
     cardio_system: CardioSystemConfig = CardioSystemConfig()
 
@@ -95,9 +98,10 @@ def train(cfg: TrainConfig, pruning_callback=None):
             test_ds, num_workers=cfg.num_workers, pin_memory=False, shuffle=False, batch_size=cfg.batch_size
         )
 
-        system = hydra.utils.instantiate(cfg.cardio_system)
+        system: CardioSystem = hydra.utils.instantiate(cfg.cardio_system)
 
-        checkpoint_callback = pl.callbacks.ModelCheckpoint(dirpath=f"{S3_CHECKPOINTS_DIR}/{i}", monitor="Val/loss")
+        experiment_checkpoints_dir = f"{S3_CHECKPOINTS_DIR}/{cfg.experiment_name}/{i}"
+        checkpoint_callback = pl.callbacks.ModelCheckpoint(dirpath=experiment_checkpoints_dir, monitor="Val/loss")
         early_stopping_callback = pl.callbacks.EarlyStopping(patience=cfg.patience, monitor="Val/loss")
         monitor_gpu_callback = pl.callbacks.GPUStatsMonitor()
         callbacks = [checkpoint_callback, early_stopping_callback, monitor_gpu_callback]
@@ -105,15 +109,20 @@ def train(cfg: TrainConfig, pruning_callback=None):
         if pruning_callback is not None:
             callbacks.append(pruning_callback)
 
-        logger = pl.loggers.TensorBoardLogger(save_dir=S3_LOGS_DIR, name=f"CardioNet/{i}", default_hp_metric=False)
+        logger = TensorBoardLogger(save_dir=S3_LOGS_DIR, name=f"{cfg.experiment_name}/{i}")
 
         trainer = pl.Trainer(logger=logger, callbacks=callbacks, gpus=cfg.gpus, max_epochs=cfg.max_epochs)
-
         trainer.fit(system, train_dataloader=train_dataloader, val_dataloaders=val_dataloader)
 
         test_result = trainer.test(test_dataloaders=test_dataloader)[0]["Test/f1_score"]
-        test_results.append(test_result)
         logger.finalize(status="success")
+
+        trainer.save_checkpoint(filepath=f"{experiment_checkpoints_dir}/best.ckpt")
+
+        test_results.append(test_result)
+
+        if i == 1:
+            break
 
     return np.mean(np.array(test_results))
 
