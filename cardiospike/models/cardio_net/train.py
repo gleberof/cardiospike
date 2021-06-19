@@ -63,8 +63,8 @@ class TrainConfig:
     win_size: int = 17
     num_workers: int = NUM_CORES - 1
     batch_size: int = 1024
-    patience: int = 25
-    max_epochs: int = 50
+    patience: int = 75
+    max_epochs: int = 200
     gpus: int = 1
     cardio_system: CardioSystemConfig = CardioSystemConfig()
 
