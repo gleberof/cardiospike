@@ -9,4 +9,9 @@ class DummyModel:
 
     @staticmethod
     def predict(rr_requence: List[int]):
-        return np.random.rand(len(rr_requence)).tolist(), np.random.rand(len(rr_requence)).tolist()
+        return (
+            np.random.rand(len(rr_requence)).tolist(),
+            0.4,
+            np.random.rand(len(rr_requence)).tolist(),
+            np.random.rand(),
+        )

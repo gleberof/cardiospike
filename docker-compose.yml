@@ -16,7 +16,7 @@ services:
         target: /cardiospike/cardiospike/
     env_file:
       - .env
-    command: "uvicorn cardiospike.api.app:app --port $API_PORT --host 0.0.0.0"
+    command: "uvicorn cardiospike.api.app:app --port $API_PORT --host 0.0.0.0 --reload"
 
   web:
     container_name: web
@@ -40,7 +40,7 @@ services:
         target: /cardiospike/cardiospike/
     env_file:
       - .env
-    command: "gunicorn --workers=$WORKERS --threads=$THREADS cardiospike.web.app:app --bind 0.0.0.0:$WEB_PORT"
+    command: "gunicorn --workers=$WORKERS --threads=$THREADS cardiospike.web.app:app --bind 0.0.0.0:$WEB_PORT --reload"
 
 networks:
   api:

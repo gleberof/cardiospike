@@ -1,0 +1,8 @@
+#block_container
+{
+    vertical-align: center;
+}
+#block1, #block2
+{
+    display:inline;
+}

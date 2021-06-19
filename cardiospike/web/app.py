@@ -5,19 +5,19 @@ from typing import List
 
 import pandas as pd
 import plotly
-import plotly.graph_objects as go
 import requests
 from flask import Flask, render_template, request
 
 from cardiospike.api import API_PORT
-from cardiospike.web import API_HOST
+from cardiospike.utils.visualization import plot_rr
+from cardiospike.web import API_HOST, STATIC_DIR
 
 file_path = Path(os.path.realpath(__file__)).parent.parent.parent.absolute()
 df = pd.read_csv(Path(f"{file_path}/data/train.csv"))
 users = [str(u) for u in df.id.unique()]
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=STATIC_DIR)
 
 API_ENDPOINT = f"http://{API_HOST}:{API_PORT}"
 PREDICT_ENDPOINT = f"{API_ENDPOINT}/predict"
@@ -44,41 +44,21 @@ def get_predictions(study: str, sequence: List[int]):
     session = requests.Session()
     session.trust_env = False
     response = session.post(url=PREDICT_ENDPOINT, headers=headers, data=json_data)
+
     if response.status_code == 200:
         return response.json()
 
 
 def gm(sample="1"):
     t = df.loc[df["id"] == int(sample)].sort_values("time").reset_index(drop=True)
-    fig = go.Figure()
-    fig.update_layout(title=f"Sample {sample}")
-
     results = get_predictions(sample, t["x"].tolist())
 
-    fig.add_trace(go.Scatter(x=t["time"], y=t["x"], mode="lines", name="R-R"))
-    fig.update_traces(line=dict(color="blue", width=0.3))
-    t["predictions"] = results["predictions"]
-    t["errors"] = results["errors"]
+    anomaly_thresh = results["anomaly_thresh"]
 
-    qt = t.loc[t.y == 1].reset_index(drop=True)
-    fig.add_trace(
-        go.Scatter(
-            x=qt["time"],
-            y=qt["x"],
-            mode="markers",
-            name="spikes",
-            opacity=0.8,
-            marker=dict(
-                size=10,
-            ),
-        )
-    )
+    t["anomaly_proba"] = results["anomaly_proba"]
+    t["error"] = results["errors"]
 
-    pred = t.loc[t["predictions"] > 0.99].reset_index(drop=True)
-    fig.add_trace(go.Scatter(x=pred["time"], y=pred["x"], mode="markers", name="predicts"))
-
-    errs = t.loc[t["errors"] > 0.99].reset_index(drop=True)
-    fig.add_trace(go.Scatter(x=errs["time"], y=errs["x"], mode="markers", name="errors", marker_symbol="x"))
+    fig = plot_rr(t, anomaly_thresh=anomaly_thresh)
 
     graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 

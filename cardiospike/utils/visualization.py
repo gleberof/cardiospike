@@ -19,14 +19,33 @@ def plot_rr(t, anomaly_thresh=0.4):
         name="Anomaly",
     )
     fig.update_layout(
+        title_text="RR Ритмограмма",
+        title_font_color="#007bff",
+        title_font_size=20,
         plot_bgcolor="#f8f9fa",
         paper_bgcolor="#f8f9fa",
-        xaxis_gridcolor="#007bff",
-        yaxis_gridcolor="#007bff",
-        xaxis_color="#007bff",
-        yaxis_color="#007bff",
-        xaxis_title_text_color="#007bff",
         xaxis_title_text="Время, мс",
+        yaxis_title_text="RR-интервал, мс",
+        margin=go.layout.Margin(
+            l=100,  # left margin
+            r=0,  # right margin
+            b=0,  # bottom margin
+            t=40,  # top margin
+        ),
     )
+
+    axis_config = dict(
+        gridcolor="#007bff",
+        color="#007bff",
+        linewidth=3,
+        title_font_color="#007bff",
+        title_font_size=15,
+        zerolinecolor="#007bff",
+        zerolinewidth=5,
+        title_font_family="Segoe UI",
+    )
+
+    fig.update_xaxes(**axis_config)
+    fig.update_yaxes(**axis_config)
 
     return fig

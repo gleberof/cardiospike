@@ -24,10 +24,10 @@ class Predictions(BaseModel):
         description="threshold for anomaly probabilities separation to `detected` and `not detected`",
         example=0.4,
     )
-    error_proba: List[float] = Field(
-        title="Error Probabilities",
-        description="list of observation error probabilities",
-        example=[0.2, 0.5, 0.8, 0.1, 0.2, 0.9],
+    errors: List[int] = Field(
+        title="Observation Error",
+        description="list of observation errors predicted by the model (0 or 1)",
+        example=[0, 1, 0, 1, 1, 0],
     )
     error_thresh: float = Field(
         title="Error Threshold",

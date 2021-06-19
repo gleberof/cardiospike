@@ -3,6 +3,7 @@
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='style.css') }}">
     <script>
         function cb(selection) {
             $.getJSON({
@@ -14,16 +15,24 @@
     </script>
 </head>
 
-<body style="font-family:arial, sans-serif">
+<body style="font-family:arial, sans-serif" bgcolor="#f8f9fa">
     <h1>R-R Intervals Anomaly Detection</h1>
-    <h2>Samples</h2>
-    <select id="Samples" size="22" width="20" class="scrollable", onchange="cb(this.value)" style="float:left;">
-        {% for user in users %}
-            <option>{{user}}</option>
-        {% endfor %}
-    </select>
-    <div id="chart" class="chart" style="align:center;">
-    <div id="png_chart"></div></div>
+
+    <div id="block_container">
+        <div id="block1">
+            <h2>Samples</h2>
+            <select id="Samples" size="22" width="20" class="scrollable", onchange="cb(this.value)">
+                {% for user in users %}
+                    <option>{{ user }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="block2">
+            <div id="chart" class="chart"></div>
+        </div>
+
+    </div>
 </body>
 
 <script>
