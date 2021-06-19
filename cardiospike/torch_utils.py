@@ -2,46 +2,12 @@ import math
 from collections import defaultdict
 
 import numpy as np
-import pandas as pd
 import torch
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import Dataset
+from tqdm.auto import tqdm
 
-
-class CardioDataset(Dataset):
-    def __init__(self, df, win_size=32):
-        self.df = df
-        self.win_size = win_size
-
-        self.point_indexes = []
-        self.win_lens = []
-
-        dfs = []
-        total_len = 0
-        for q, qdf in self.df.groupby("id"):
-            for i in range(max(1, qdf.shape[0] - win_size + 1)):
-                self.point_indexes.append(i + total_len)
-                if i + win_size > qdf.shape[0]:
-                    self.win_lens.append(qdf.shape[0] - i)
-                else:
-                    self.win_lens.append(win_size)
-            total_len += qdf.shape[0]
-            dfs.append(qdf)
-        self.df = pd.concat(dfs, ignore_index=True).reset_index(drop=True)
-
-    def __len__(self):
-        return len(self.point_indexes)
-
-    def __getitem__(self, idx):
-        i0 = self.point_indexes[idx]
-        i1 = i0 + self.win_lens[idx]
-
-        x_mat = np.zeros((self.win_size, 2))
-        y_mat = np.zeros(self.win_size)
-        x_mat[-self.win_lens[idx] :, 1] = self.df.iloc[i0:i1].x.values
-        y_mat[-self.win_lens[idx] :] = self.df.iloc[i0:i1].y.values
-
-        return {"x": x_mat, "y": y_mat, "start": i0, "end": i1}
+from cardiospike.data.preprocessing import scale_ts
 
 
 class Lookahead(Optimizer):
@@ -53,7 +19,7 @@ class Lookahead(Optimizer):
     Paper: `Lookahead Optimizer: k steps forward, 1 step back` - https://arxiv.org/abs/1907.08610
     """
 
-    def __init__(self, base_optimizer, alpha=0.5, k=6):
+    def __init__(self, base_optimizer, alpha=0.5, k=6):  # noqa
         if not 0.0 <= alpha <= 1.0:
             raise ValueError(f"Invalid slow update rate: {alpha}")
         if not 1 <= k:
@@ -236,3 +202,78 @@ class Ralamb(Optimizer):
                 p.data.copy_(p_data_fp32)
 
         return loss
+
+
+class CardioDataset(Dataset):
+    def __init__(self, df, win_size=33, aug=None, bar=None):
+        self.df = df.sort_values(["id", "time"]).reset_index(drop=True).copy()
+        self.win_size = win_size
+
+        self.start_index = []
+        self.end_index = []
+        self.win_start = []
+        self.win_end = []
+
+        self.aug = aug
+
+        total_len = 0
+        for q, qdf in self.df.groupby("id"):
+            for i in range(qdf.shape[0]):
+                self.start_index.append(max(total_len, total_len + i - win_size // 2))
+                self.win_start.append(i - win_size // 2)
+                self.win_end.append(i + win_size // 2 + 1 - qdf.shape[0])
+                self.end_index.append(min(total_len + qdf.shape[0], total_len + i + win_size // 2 + 1))
+            total_len += qdf.shape[0]
+
+        self.preproc(bar=bar)
+
+    def preproc(self, bar=None):
+        bar = bar if bar is not None else tqdm(total=self.df.shape[0])
+        N = self.df.shape[0]
+
+        self.X = np.zeros((N, self.win_size, 2))
+
+        for idx in range(N):
+            i0 = self.start_index[idx]
+            i1 = self.end_index[idx]
+            s = i1 - i0
+
+            for i, feat in enumerate(["x", "log_x"]):
+                q = self.df.iloc[i0:i1][feat].values
+                mq = np.flip(q, axis=0)
+
+                if self.win_start[idx] < 0:
+                    sp = -self.win_start[idx]
+                    assert sp + s == self.win_size
+                    merged = np.concatenate([mq[-sp:], q])
+
+                    self.X[idx, :, i], _ = scale_ts(merged[: self.win_size])  # merged[:self.win_size] #
+
+                elif self.win_end[idx] > 0:
+                    sp = self.win_end[idx]
+                    assert sp + s == self.win_size
+                    merged = np.concatenate([q, mq[:sp]])
+                    self.X[idx, :, i], _ = scale_ts(merged[: self.win_size])  # merged[:self.win_size] #
+                else:
+                    assert i1 - i0 == self.win_size
+                    self.X[idx, :, i], _ = scale_ts(q)  # q #
+
+            bar.update(n=1)
+
+    def __len__(self):
+        return self.df.shape[0]
+
+    def __getitem__(self, idx):
+        x = self.X[idx]
+
+        if (self.aug is not None) and (np.random.rand() < self.aug):
+            a = np.linspace(0, 0.1, self.win_size)
+            aa = np.concatenate([a, a]).reshape(self.win_size, 2)
+            if np.random.rand() >= 0.5:
+                x += aa
+            else:
+                x -= aa
+
+        y = self.df.y.values[idx].astype("float32")
+
+        return {"x": x.astype("float32"), "y": y}
