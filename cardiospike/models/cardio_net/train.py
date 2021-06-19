@@ -63,8 +63,8 @@ class TrainConfig:
     win_size: int = 17
     num_workers: int = NUM_CORES - 1
     batch_size: int = 1024
-    patience: int = 50
-    max_epochs: int = 200
+    patience: int = 25
+    max_epochs: int = 50
     gpus: int = 1
     cardio_system: CardioSystemConfig = CardioSystemConfig()
 
@@ -113,8 +113,9 @@ def train(cfg: TrainConfig, pruning_callback=None):
 
         trainer = pl.Trainer(logger=logger, callbacks=callbacks, gpus=cfg.gpus, max_epochs=cfg.max_epochs)
         trainer.fit(system, train_dataloader=train_dataloader, val_dataloaders=val_dataloader)
-
-        test_result = trainer.test(test_dataloaders=test_dataloader)[0]["Test/f1_score"]
+        test_result = trainer.test(test_dataloaders=test_dataloader, ckpt_path=checkpoint_callback.best_model_path)[0][
+            "Test/f1_score"
+        ]
         logger.finalize(status="success")
 
         trainer.save_checkpoint(filepath=f"{experiment_checkpoints_dir}/best.ckpt")
