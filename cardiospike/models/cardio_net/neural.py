@@ -42,8 +42,12 @@ class AttentionWeightedAverage(nn.Module):
             return output, None
 
 
+def get_conv_output_size(in_size, kernel_size, stride, padding):
+    return int(1 + (in_size + 2 * padding - kernel_size) / stride)
+
+
 class CardioNet(nn.Module):
-    def __init__(self, output_size=1, channels=32, top_classifier_units=512, rnn_units=16):  # noqa
+    def __init__(self, output_size=1, channels=32, top_classifier_units=512, rnn_units=16, win_size=17):  # noqa
         super().__init__()
 
         self.kern_sizes = [3, 5, 7, 9]
@@ -52,11 +56,11 @@ class CardioNet(nn.Module):
             {
                 f"conv_{ks}": nn.Sequential(
                     nn.BatchNorm1d(2),
-                    nn.Conv1d(2, channels, ks),
+                    nn.Conv1d(in_channels=2, out_channels=channels, kernel_size=ks, stride=1, padding=0),  # noqa
                     nn.Dropout(0.5),
                     nn.GELU(),
                     nn.BatchNorm1d(channels),
-                    nn.Conv1d(channels, channels, ks),
+                    nn.Conv1d(in_channels=channels, out_channels=channels, kernel_size=ks, stride=1, padding=0),  # noqa
                     nn.Dropout(0.5),
                     nn.GELU(),
                 )
@@ -69,7 +73,8 @@ class CardioNet(nn.Module):
         self._gru = nn.GRU(input_size=2, num_layers=1, hidden_size=rnn_units, batch_first=True, bidirectional=True)
 
         self._attn = AttentionWeightedAverage(2 * rnn_units)
-        self.sum_chans = 305
+
+        self.sum_chans = 8 * channels + win_size + 2 * rnn_units
 
         self._head = nn.Sequential(
             nn.LayerNorm(self.sum_chans),

@@ -10,7 +10,7 @@ from omegaconf import MISSING
 from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
 
 from cardiospike import DATA_DIR
-from cardiospike.models.cardio_net.training import TrainConfig, train
+from cardiospike.models.cardio_net.train import TrainConfig, train
 
 load_dotenv()
 
