@@ -7,7 +7,6 @@ import optuna
 import sqlalchemy
 from dotenv import load_dotenv
 from hydra.core.config_store import ConfigStore
-from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
 
 from cardiospike import DATA_DIR
 from cardiospike.models.cardio_net.train import TrainConfig, train
@@ -51,8 +50,6 @@ class SearchConfig:
 
 def search(cfg: SearchConfig):
     def objective(trial: optuna.Trial):
-        pruning_callback = PyTorchLightningPruningCallback(monitor="Val/loss", trial=trial)
-
         cfg.train.experiment_name = f"{cfg.study_name}/{uuid1()}"
 
         cfg.train.cardio_system.alpha = trial.suggest_float("alpha", 0.44, 0.55)
@@ -63,7 +60,7 @@ def search(cfg: SearchConfig):
         cfg.train.cardio_system.top_classifier_units = trial.suggest_int("top_classifier_units", 64, 1024, log=True)
         cfg.train.cardio_system.rnn_units = trial.suggest_int("rnn_units", 25, 64, log=True)
 
-        return train(cfg=cfg.train, pruning_callback=pruning_callback)
+        return train(cfg=cfg.train)
 
     pruner = optuna.pruners.MedianPruner()
 

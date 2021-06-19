@@ -122,8 +122,7 @@ def train(cfg: TrainConfig, pruning_callback=None):
 
         test_results.append(test_result)
 
-        if i == 1:
-            break
+    assert len(test_results) == 25
 
     return np.mean(np.array(test_results))
 
