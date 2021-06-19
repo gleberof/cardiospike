@@ -13,12 +13,11 @@ from cardiospike.api import API_PORT
 from cardiospike.web import API_HOST
 
 file_path = Path(os.path.realpath(__file__)).parent.parent.parent.absolute()
-
-app = Flask(__name__)
-
 df = pd.read_csv(Path(f"{file_path}/data/train.csv"))
 users = [str(u) for u in df.id.unique()]
 
+
+app = Flask(__name__)
 
 API_ENDPOINT = f"http://{API_HOST}:{API_PORT}"
 PREDICT_ENDPOINT = f"{API_ENDPOINT}/predict"

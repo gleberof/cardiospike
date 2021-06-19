@@ -8,16 +8,32 @@ study_field = Field(title="study", description="unique rr study identifier", exa
 class RR(BaseModel):
     study: str = study_field
     sequence: List[int] = Field(
-        title="sequence", description="RR intervals in milliseconds", example=[200, 300, 200, 300, 200, 300]
+        title="Sequence", description="RR intervals in milliseconds", example=[200, 300, 200, 300, 200, 300]
     )
 
 
 class Predictions(BaseModel):
     study: str = study_field
-    predictions: List[float] = Field(
-        title="predictions", description="list of anomaly predictions (0 or 1)", example=[0, 0, 1, 1, 1, 0]
+    anomaly_proba: List[float] = Field(
+        title="Anomaly Probabilities",
+        description="list of anomaly prediction probabilities",
+        example=[0.5, 0.2, 1.0, 0.2, 0.8, 0.1],
     )
-    errors: List[float] = Field(title="errors", description="list errors (0 or 1)", example=[1, 0, 0, 0, 0, 0])
+    anomaly_thresh: float = Field(
+        title="Anomaly Threshold",
+        description="threshold for anomaly probabilities separation to `detected` and `not detected`",
+        example=0.4,
+    )
+    error_proba: List[float] = Field(
+        title="Error Probabilities",
+        description="list of observation error probabilities",
+        example=[0.2, 0.5, 0.8, 0.1, 0.2, 0.9],
+    )
+    error_thresh: float = Field(
+        title="Error Threshold",
+        description="threshold for error probabilities separation to `detected` and `not detected` ",
+        example=0.4,
+    )
 
 
 class Model500(BaseModel):

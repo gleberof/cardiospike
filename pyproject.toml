@@ -35,6 +35,7 @@ boto3 = "^1.16.35"
 mysql-connector = "^2.2.9"
 mysqlclient = "^2.0.3"
 PyMySQL = "^1.0.2"
+flask-swagger-ui = "^3.36.0"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"

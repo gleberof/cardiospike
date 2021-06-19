@@ -10,16 +10,14 @@ services:
       - API_PORT=5000
     networks:
       - api
-#    deploy:
-#      resources:
-#        reservations:
-#          devices:
-#            - driver: nvidia
-#              count: 1
-#              capabilities: [ gpu ]
+    volumes:
+      - type: bind
+        source: ./cardiospike
+        target: /cardiospike/cardiospike/
     env_file:
       - .env
     command: "uvicorn cardiospike.api.app:app --port $API_PORT --host 0.0.0.0"
+
   web:
     container_name: web
     build:
@@ -37,6 +35,9 @@ services:
       - type: bind
         source: ./data
         target: /cardiospike/data/
+      - type: bind
+        source: ./cardiospike
+        target: /cardiospike/cardiospike/
     env_file:
       - .env
     command: "gunicorn --workers=$WORKERS --threads=$THREADS cardiospike.web.app:app --bind 0.0.0.0:$WEB_PORT"
