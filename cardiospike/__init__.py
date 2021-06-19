@@ -14,13 +14,8 @@ SUBMISSIONS_DIR = DATA_DIR / "submissions"
 
 TRAIN_DATA_PATH = DATA_DIR / "train.csv"
 
-S3_CHECKPOINTS_DIR: str = str(os.environ.get("S3_CHECKPOINTS_DIR"))
-
-assert S3_CHECKPOINTS_DIR != "None"
-
-S3_LOGS_DIR: str = str(os.environ.get("S3_LOGS_DIR"))
-
-assert S3_LOGS_DIR != "None"
+CHECKPOINTS_DIR: str = os.environ.get("CHECKPOINTS_DIR"), str(DATA_DIR / "checkpoints")  # type: ignore
+LOGS_DIR: str = os.environ.get("LOGS_DIR"), str(DATA_DIR / "logs")  # type: ignore
 
 
 DB_COLORS = {
