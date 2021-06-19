@@ -37,7 +37,7 @@ OPTUNA_STORAGE_URL = str(
 
 @dataclass
 class SearchConfig:
-    study_name: str = "CardioNet/window=17"
+    study_name: str = "CardioNet/window=17-v0"
 
     n_trials: int = 100
     train: TrainConfig = TrainConfig()
@@ -67,7 +67,7 @@ def search(cfg: SearchConfig):
     pruner = optuna.pruners.MedianPruner()
 
     study = optuna.create_study(
-        direction="minimize",
+        direction="maximize",
         storage=OPTUNA_STORAGE_URL,
         pruner=pruner,
         study_name=f"cardiospike/{cfg.study_name}",
