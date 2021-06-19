@@ -1,6 +1,7 @@
 data/model-checkpoints
 data/submissions
 *.csv
+*.joblib
 outputs
 
 ### JetBrains template
