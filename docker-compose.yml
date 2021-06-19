@@ -31,6 +31,7 @@ services:
       - API_HOST=api
       - WORKERS=$WORKERS
       - THREADS=$THREADS
+      - FLASK_DEBUG=1
     networks:
       - api
       - front
