@@ -9,6 +9,7 @@ load_dotenv()
 NUM_CORES = multiprocessing.cpu_count()
 
 ROOT_DIR = Path(__file__).parents[0].parents[0]
+PACKAGE_DIR = ROOT_DIR / "cardiospike"
 DATA_DIR = ROOT_DIR / "data"
 SUBMISSIONS_DIR = DATA_DIR / "submissions"
 

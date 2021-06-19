@@ -3,6 +3,8 @@
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.csc') }}">
     <script>
         function cb(selection) {
             $.getJSON({
@@ -17,7 +19,7 @@
 <body style="font-family:arial, sans-serif">
     <h1>R-R intervals with spike markers</h1>
     <h2>Samples</h2>
-    <select id="Samples" size="22" width="20" class="scrollable", onchange="cb(this.value)" style="float:left;">
+    <select id="FixedHeightContainer" size="22" width="10" height="500" class="scrollable", onchange="cb(this.value)" style="float:left;">
         {% for user in users %}
             <option>{{user}}</option>
         {% endfor %}

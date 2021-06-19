@@ -10,11 +10,11 @@ import requests
 from flask import Flask, render_template, request
 
 from cardiospike.api import API_PORT
-from cardiospike.web import API_HOST
+from cardiospike.web import API_HOST, STATIC_DIR, TEMPLATES_DIR
 
 file_path = Path(os.path.realpath(__file__)).parent.parent.parent.absolute()
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(TEMPLATES_DIR), static_folder=str(STATIC_DIR))
 
 df = pd.read_csv(Path(f"{file_path}/data/train.csv"))
 users = [str(u) for u in df.id.unique()]
