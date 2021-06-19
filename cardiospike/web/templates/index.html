@@ -3,6 +3,11 @@
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='style.css') }}">
     <script>
         function cb(selection) {
@@ -15,23 +20,36 @@
     </script>
 </head>
 
-<body style="font-family:arial, sans-serif" bgcolor="#f8f9fa">
-    <h1>R-R Intervals Anomaly Detection</h1>
+<body style="padding: 20px">
+    <div style="color: #1940ff; text-align: center">
+        <h1>Детектирование аномалий RR-интервалов</h1>
+    </div>
 
-    <div id="block_container">
-        <div id="block1">
-            <h2>Samples</h2>
-            <select id="Samples" size="22" width="20" class="scrollable", onchange="cb(this.value)">
+    <div>
+        <div style="float: left">
+            <div style="color: #1940ff; margin-bottom: 20px">
+                <h4>Образец</h4>
+            </div>
+            <select id="Samples" size="19" width="20" class="scrollable", onchange="cb(this.value)"
+                    style="border-color: #1940ff; border-width: medium; border-radius: 6px"
+            >
                 {% for user in users %}
                     <option>{{ user }}</option>
                 {% endfor %}
             </select>
         </div>
 
-        <div id="block2">
-            <div id="chart" class="chart"></div>
+        <div>
+            <br>
+            <br>
+            <div id="chart" class="chart" style="margin-left: 100px"></div>
         </div>
 
+    </div>
+    <br>
+    <br>
+    <div style="color: #1940ff; text-align: center">
+        <h2> Команда "Звездочка" </h2>
     </div>
 </body>
 

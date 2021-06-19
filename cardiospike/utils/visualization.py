@@ -3,24 +3,26 @@ import plotly.graph_objs as go
 
 def plot_rr(t, anomaly_thresh=0.4):
     fig = go.Figure()
-    fig.add_scatter(x=t["time"], y=t["x"], line_color="#e83e8c", line_width=3, name="RR Interval")
+    fig.add_scatter(x=t["time"], y=t["x"], line_color="#e83e8c", line_width=3, name="RR-интервалы")
 
     mask = t["anomaly_proba"] > anomaly_thresh
+
+    factor = ((t["anomaly_proba"] - anomaly_thresh) / max(t["anomaly_proba"] - anomaly_thresh))[mask]
 
     fig.add_scatter(
         x=t["time"][mask],
         y=t["x"][mask],
         mode="markers",
-        marker_color=t["anomaly_proba"][mask],
-        marker_size=15 * t["anomaly_proba"][mask],
+        marker_color=factor,
+        marker_size=15 * factor,
         marker_colorscale=[[0.0, "#e83e8c"], [1.0, "#ffc107"]],
-        marker_line=dict(color="#dc3545", width=3 * t["anomaly_proba"][mask]),
-        marker_opacity=t["anomaly_proba"][mask],
-        name="Anomaly",
+        marker_line=dict(color="#dc3545", width=3 * factor),
+        marker_opacity=factor,
+        name="Аномалии",
     )
     fig.update_layout(
         title_text="RR Ритмограмма",
-        title_font_color="#007bff",
+        title_font_color="#1940ff",
         title_font_size=20,
         plot_bgcolor="#f8f9fa",
         paper_bgcolor="#f8f9fa",
@@ -35,12 +37,12 @@ def plot_rr(t, anomaly_thresh=0.4):
     )
 
     axis_config = dict(
-        gridcolor="#007bff",
-        color="#007bff",
+        gridcolor="#1940ff",
+        color="#1940ff",
         linewidth=3,
-        title_font_color="#007bff",
+        title_font_color="#1940ff",
         title_font_size=15,
-        zerolinecolor="#007bff",
+        zerolinecolor="#1940ff",
         zerolinewidth=5,
         title_font_family="Segoe UI",
     )
