@@ -12,6 +12,9 @@ services:
       - api
     volumes:
       - type: bind
+        source: ./data
+        target: /cardiospike/data/
+      - type: bind
         source: ./cardiospike
         target: /cardiospike/cardiospike/
     env_file:
