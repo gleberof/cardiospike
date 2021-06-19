@@ -37,7 +37,7 @@ OPTUNA_STORAGE_URL = str(
 
 @dataclass
 class SearchConfig:
-    study_name: str = "CardioSpike/fold-in-fold-cnn-2"
+    study_name: str = "CardioNet/window=17"
 
     n_trials: int = 100
     train: TrainConfig = TrainConfig()
