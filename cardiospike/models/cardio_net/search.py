@@ -61,6 +61,7 @@ def search(cfg: SearchConfig):
 
         cfg.train.cardio_system.channels = trial.suggest_int("channels", 16, 256, log=True)
         cfg.train.cardio_system.top_classifier_units = trial.suggest_int("top_classifier_units", 64, 1024, log=True)
+        cfg.train.cardio_system.rnn_units = trial.suggest_int("rnn_units", 8, 64, log=True)
 
         return train(cfg=cfg.train, pruning_callback=pruning_callback)
 
