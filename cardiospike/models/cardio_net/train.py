@@ -63,8 +63,8 @@ class TrainConfig:
     win_size: int = 17
     num_workers: int = NUM_CORES - 1
     batch_size: int = 1024
-    patience: int = 25
-    max_epochs: int = 50
+    patience: int = 40
+    max_epochs: int = 200
     gpus: int = 1
     cardio_system: CardioSystemConfig = CardioSystemConfig()
 
@@ -122,8 +122,7 @@ def train(cfg: TrainConfig, pruning_callback=None):
 
         test_results.append(test_result)
 
-        if i == 1:
-            break
+    assert len(test_results) == 25
 
     return np.mean(np.array(test_results))
 

@@ -1,13 +1,11 @@
 import os
 from dataclasses import dataclass
-from uuid import uuid1
 
 import hydra
 import optuna
 import sqlalchemy
 from dotenv import load_dotenv
 from hydra.core.config_store import ConfigStore
-from optuna.integration.pytorch_lightning import PyTorchLightningPruningCallback
 
 from cardiospike import DATA_DIR
 from cardiospike.models.cardio_net.train import TrainConfig, train
@@ -37,7 +35,7 @@ OPTUNA_STORAGE_URL = str(
 
 @dataclass
 class SearchConfig:
-    study_name: str = "CardioNet/window=17-v0"
+    study_name: str = "CardioNet/window=17-v2"
 
     n_trials: int = 100
     train: TrainConfig = TrainConfig()
@@ -51,19 +49,17 @@ class SearchConfig:
 
 def search(cfg: SearchConfig):
     def objective(trial: optuna.Trial):
-        pruning_callback = PyTorchLightningPruningCallback(monitor="Val/loss", trial=trial)
+        cfg.train.experiment_name = f"{cfg.study_name}/trial={trial.number}"
 
-        cfg.train.experiment_name = f"{cfg.study_name}/{uuid1()}"
-
-        cfg.train.cardio_system.alpha = trial.suggest_float("alpha", 0.4, 0.6)
-        cfg.train.cardio_system.step_ahead = trial.suggest_int("step_ahead", 3, 6)
-        cfg.train.cardio_system.lr = trial.suggest_loguniform("lr", 1e-5, 1e-3)
+        cfg.train.cardio_system.alpha = trial.suggest_float("alpha", 0.44, 0.55)
+        cfg.train.cardio_system.step_ahead = trial.suggest_int("step_ahead", 3, 5)
+        cfg.train.cardio_system.lr = trial.suggest_loguniform("lr", 4e-4, 3e-3)
 
         cfg.train.cardio_system.channels = trial.suggest_int("channels", 16, 256, log=True)
         cfg.train.cardio_system.top_classifier_units = trial.suggest_int("top_classifier_units", 64, 1024, log=True)
-        cfg.train.cardio_system.rnn_units = trial.suggest_int("rnn_units", 8, 64, log=True)
+        cfg.train.cardio_system.rnn_units = trial.suggest_int("rnn_units", 25, 64, log=True)
 
-        return train(cfg=cfg.train, pruning_callback=pruning_callback)
+        return train(cfg=cfg.train)
 
     pruner = optuna.pruners.MedianPruner()
 
