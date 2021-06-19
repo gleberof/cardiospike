@@ -24,11 +24,7 @@ def plot_rr(t, anomaly_thresh=0.4):
 
     factor = ((t["anomaly_proba"] - anomaly_thresh) / max(t["anomaly_proba"] - anomaly_thresh))[mask]
 
-    plot_name = (
-        "RR Ритмограмма. Все чисто!"
-        if num_anomalies == 0
-        else f"RR Ритмограмма. ❗ Обнаружено {num_anomalies} аномалий ❗"
-    )
+    plot_name = "RR Ритмограмма. Все чисто!" if num_anomalies == 0 else f"RR Ритмограмма. ❗ Аномалий: {num_anomalies} ❗"
 
     fig.add_scatter(
         x=t["time"][mask],
