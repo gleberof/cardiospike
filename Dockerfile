@@ -28,8 +28,8 @@ RUN mkdir $HOME/opt/ && \
     poetry config virtualenvs.create false
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry install
-
-COPY . .
+RUN mkdir cardiospike && touch cardiospike/__init__.py
 RUN poetry install
 RUN rm -rf $HOME/.cache/pypoetry
+
+COPY . .

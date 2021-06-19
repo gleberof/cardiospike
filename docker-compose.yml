@@ -22,6 +22,8 @@ services:
     command: "uvicorn cardiospike.api.app:app --port $API_PORT --host 0.0.0.0"
   web:
     container_name: web
+    depends_on:
+      - api
     build:
       context: .
     ports:
