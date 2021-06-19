@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 from typing import List
 
@@ -8,12 +7,16 @@ import plotly
 import requests
 from flask import Flask, render_template, request
 
+from cardiospike import TEST_PATH, WELLTORY_PATH
 from cardiospike.api import API_PORT
 from cardiospike.utils.visualization import plot_rr
 from cardiospike.web import API_HOST, STATIC_DIR
 
-file_path = Path(os.path.realpath(__file__)).parent.parent.parent.absolute()
-df = pd.read_csv(Path(f"{file_path}/data/train.csv"))
+df = pd.read_csv(Path(TEST_PATH))
+wt = pd.read_csv(Path(WELLTORY_PATH))
+
+df = pd.concat((df, wt))
+
 users = [str(u) for u in df.id.unique()]
 
 
@@ -49,7 +52,7 @@ def get_predictions(study: str, sequence: List[int]):
         return response.json()
 
 
-def gm(sample="1"):
+def gm(sample="8"):
     t = df.loc[df["id"] == int(sample)].sort_values("time").reset_index(drop=True)
     results = get_predictions(sample, t["x"].tolist())
 
