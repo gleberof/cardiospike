@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-from uuid import uuid1
 
 import hydra
 import optuna
@@ -36,7 +35,7 @@ OPTUNA_STORAGE_URL = str(
 
 @dataclass
 class SearchConfig:
-    study_name: str = "CardioNet/window=17-v1"
+    study_name: str = "CardioNet/window=17-v2"
 
     n_trials: int = 100
     train: TrainConfig = TrainConfig()
@@ -50,7 +49,7 @@ class SearchConfig:
 
 def search(cfg: SearchConfig):
     def objective(trial: optuna.Trial):
-        cfg.train.experiment_name = f"{cfg.study_name}/{uuid1()}"
+        cfg.train.experiment_name = f"{cfg.study_name}/trial={trial.number}"
 
         cfg.train.cardio_system.alpha = trial.suggest_float("alpha", 0.44, 0.55)
         cfg.train.cardio_system.step_ahead = trial.suggest_int("step_ahead", 3, 5)
