@@ -21,3 +21,14 @@ assert S3_CHECKPOINTS_DIR != "None"
 S3_LOGS_DIR: str = str(os.environ.get("S3_LOGS_DIR"))
 
 assert S3_LOGS_DIR != "None"
+
+
+DB_COLORS = {
+    "violet": "#804bf2",
+    "blue": "#1940ff",
+    "dirty-blue": "#2d8ca7",
+    "turquoise": "#68e4b2",
+    "green": "#9fe54a",
+    "yellow": "#ffbe00",
+    "red": "#ff1c60",
+}
