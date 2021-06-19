@@ -1,13 +1,11 @@
 from fastapi import APIRouter, HTTPException
 
-from cardiospike.api.models import RR, Model500, Predictions
-from cardiospike.inference import DummyModel, SmartModel
-
 from cardiospike import SMART_MODEL_PATH
+from cardiospike.api.models import RR, Model500, Predictions
+from cardiospike.inference import SmartModel
 
 router = APIRouter()
 
-# model = DummyModel()
 model = SmartModel(str(SMART_MODEL_PATH))
 
 #

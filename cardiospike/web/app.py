@@ -7,17 +7,15 @@ import plotly
 import requests
 from flask import Flask, render_template, request
 
+from cardiospike import TEST_PATH, WELLTORY_PATH
 from cardiospike.api import API_PORT
 from cardiospike.utils.visualization import plot_rr
 from cardiospike.web import API_HOST, STATIC_DIR
 
-from cardiospike import TEST_PATH, WELLTORY_PATH
-
-
 df = pd.read_csv(Path(TEST_PATH))
 wt = pd.read_csv(Path(WELLTORY_PATH))
 
-df = pd.concat((df,wt))
+df = pd.concat((df, wt))
 
 users = [str(u) for u in df.id.unique()]
 

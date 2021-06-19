@@ -15,9 +15,9 @@ PACKAGE_DIR = ROOT_DIR / "cardiospike"
 
 DATA_DIR = ROOT_DIR / "data"
 SUBMISSIONS_DIR = DATA_DIR / "submissions"
-SMART_MODEL_PATH = DATA_DIR / 'web_model.joblib'
-TEST_PATH = DATA_DIR / 'test.csv'
-WELLTORY_PATH = DATA_DIR / 'welltory.csv'
+SMART_MODEL_PATH = DATA_DIR / "web_model.joblib"
+TEST_PATH = DATA_DIR / "test.csv"
+WELLTORY_PATH = DATA_DIR / "welltory.csv"
 
 TRAIN_DATA_PATH = DATA_DIR / "train.csv"
 TEST_DATA_PATH = DATA_DIR / "test.csv"
