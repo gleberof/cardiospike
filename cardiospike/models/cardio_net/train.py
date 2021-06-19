@@ -11,7 +11,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from cardiospike import NUM_CORES, S3_CHECKPOINTS_DIR, S3_LOGS_DIR, TRAIN_DATA_PATH
+from cardiospike import CHECKPOINTS_DIR, LOGS_DIR, NUM_CORES, TRAIN_DATA_PATH
 from cardiospike.data.preprocessing import load_df, scale_train_valid
 from cardiospike.models.cardio_net.neural import CardioSystem, CardioSystemConfig
 from cardiospike.models.cardio_net.utils import FOLDS_DATA_DIR, FoldInFoldGenerator
@@ -66,6 +66,9 @@ class TrainConfig:
     patience: int = 40
     max_epochs: int = 200
     gpus: int = 1
+
+    checkpoints_dir: str = CHECKPOINTS_DIR
+    logs_dir: str = LOGS_DIR
     cardio_system: CardioSystemConfig = CardioSystemConfig()
 
     @classmethod
@@ -100,7 +103,7 @@ def train(cfg: TrainConfig, pruning_callback=None):
 
         system: CardioSystem = hydra.utils.instantiate(cfg.cardio_system)
 
-        experiment_checkpoints_dir = f"{S3_CHECKPOINTS_DIR}/{cfg.experiment_name}/{i}"
+        experiment_checkpoints_dir = f"{cfg.checkpoints_dir}/{cfg.experiment_name}/{i}"
         checkpoint_callback = pl.callbacks.ModelCheckpoint(dirpath=experiment_checkpoints_dir, monitor="Val/loss")
         early_stopping_callback = pl.callbacks.EarlyStopping(patience=cfg.patience, monitor="Val/loss")
         monitor_gpu_callback = pl.callbacks.GPUStatsMonitor()
@@ -109,7 +112,7 @@ def train(cfg: TrainConfig, pruning_callback=None):
         if pruning_callback is not None:
             callbacks.append(pruning_callback)
 
-        logger = TensorBoardLogger(save_dir=S3_LOGS_DIR, name=f"{cfg.experiment_name}/{i}")
+        logger = TensorBoardLogger(save_dir=cfg.logs_dir, name=f"{cfg.experiment_name}/{i}")
 
         trainer = pl.Trainer(logger=logger, callbacks=callbacks, gpus=cfg.gpus, max_epochs=cfg.max_epochs)
         trainer.fit(system, train_dataloader=train_dataloader, val_dataloaders=val_dataloader)

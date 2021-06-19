@@ -9,6 +9,9 @@ import plotly.graph_objects as go
 import requests
 from flask import Flask, render_template, request
 
+from cardiospike.api import API_PORT
+from cardiospike.web import API_HOST
+
 file_path = Path(os.path.realpath(__file__)).parent.parent.parent.absolute()
 
 app = Flask(__name__)
@@ -16,7 +19,9 @@ app = Flask(__name__)
 df = pd.read_csv(Path(f"{file_path}/data/train.csv"))
 users = [str(u) for u in df.id.unique()]
 
-URL = f'http://host.docker.internal:{os.environ["API_PORT"]}/predict'
+
+API_ENDPOINT = f"http://{API_HOST}:{API_PORT}"
+PREDICT_ENDPOINT = f"{API_ENDPOINT}/predict"
 
 
 @app.route("/callback", methods=["POST", "GET"])
@@ -39,7 +44,7 @@ def get_predictions(study: str, sequence: List[int]):
     headers = {"Content-Type": "application/json"}
     session = requests.Session()
     session.trust_env = False
-    response = session.post(url=URL, headers=headers, data=json_data)
+    response = session.post(url=PREDICT_ENDPOINT, headers=headers, data=json_data)
     if response.status_code == 200:
         return response.json()
 
