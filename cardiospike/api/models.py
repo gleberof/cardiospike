@@ -29,11 +29,6 @@ class Predictions(BaseModel):
         description="list of observation errors predicted by the model (0 or 1)",
         example=[0, 1, 0, 1, 1, 0],
     )
-    error_thresh: float = Field(
-        title="Error Threshold",
-        description="threshold for error probabilities separation to `detected` and `not detected` ",
-        example=0.4,
-    )
 
 
 class Model500(BaseModel):

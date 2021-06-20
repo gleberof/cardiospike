@@ -88,8 +88,7 @@
           "study",
           "anomaly_proba",
           "anomaly_thresh",
-          "errors",
-          "error_thresh"
+          "errors"
         ],
         "type": "object",
         "properties": {
@@ -136,12 +135,6 @@
               1,
               0
             ]
-          },
-          "error_thresh": {
-            "title": "Error Threshold",
-            "type": "number",
-            "description": "threshold for error probabilities separation to `detected` and `not detected` ",
-            "example": 0.4
           }
         }
       },
