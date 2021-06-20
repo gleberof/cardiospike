@@ -99,10 +99,12 @@ class SmartModel:
     def predict(self, rr_requence: List[int]):
 
         df = pd.DataFrame(self.prep_data(rr_requence))
+        errors = df["mask_0"].values
+        errors = errors * -1 + 1  # invert error codes
 
         return (
             self.model.predict_proba(df)[:, 1].tolist(),
             self.anomaly_thresh,
-            df["mask_0"].tolist(),
+            errors.tolist(),
             self.error_thresh,
         )
