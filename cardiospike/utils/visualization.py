@@ -26,7 +26,7 @@ def plot_rr(t, anomaly_thresh=0.4):
     anomaly_size = anomaly_proba.copy() * 20
     anomaly_size[~is_anomaly_mask] = 0
 
-    plot_name = "RR Ритмограмма. Все чисто!" if num_anomalies == 0 else f"RR Ритмограмма. ❗ Аномалий: {num_anomalies} ❗"
+    plot_name = "RR-ритмограмма. Все чисто!" if num_anomalies == 0 else f"RR-ритмограмма. ❗ Аномалий: {num_anomalies} ❗"
     anomaly_text = [f"{p:.0%}" for p in anomaly_proba]
 
     fig = go.Figure()
