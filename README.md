@@ -16,9 +16,9 @@
 Python, Optuna, Hydra, Pytorch, Pytorch-Lightning, Sklearn, Pandas, Numpy, Plotly, Flask, FastAPI, Poetry
 
 ## Демо
-[Демо-версия веб-приложения](http://3.124.206.146/)
+[Демо-версия веб-приложения](http://сердечный-друг.рф/)
 
-[Онлайн-документация REST API](http://3.124.206.146:5000)
+[Онлайн-документация REST API](http://сердечный-друг.рф:5000)
 
 ## Установка
 

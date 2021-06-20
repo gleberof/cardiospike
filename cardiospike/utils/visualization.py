@@ -1,4 +1,3 @@
-import numpy as np
 import plotly.graph_objs as go
 
 
@@ -18,12 +17,12 @@ def anomaly_count(array_predictions):
 def plot_rr(t, anomaly_thresh=0.4):
 
     is_anomaly_mask = t["anomaly_proba"] > anomaly_thresh
-    is_error_mask = t["error"] == 1
+    # is_error_mask = t["error"] == 1
 
     num_anomalies = anomaly_count(is_anomaly_mask)
 
     anomaly_proba = t["anomaly_proba"].values
-    anomaly_color = np.sqrt(anomaly_proba)
+    anomaly_color = anomaly_proba ** 2
     anomaly_size = anomaly_proba.copy() * 20
     anomaly_size[~is_anomaly_mask] = 0
 
@@ -48,17 +47,17 @@ def plot_rr(t, anomaly_thresh=0.4):
         text=anomaly_text,
         hovertemplate="%{text}",
     )
-    fig.add_scatter(
-        x=t["time"][is_error_mask],
-        y=t["x"][is_error_mask],
-        mode="markers",
-        marker_color="#20c997",
-        marker_size=13,
-        marker_line_width=2,
-        marker_symbol="x",
-        name="Ошибка измерения",
-        hoverinfo="skip",
-    )
+    # fig.add_scatter(
+    #     x=t["time"][is_error_mask],
+    #     y=t["x"][is_error_mask],
+    #     mode="markers",
+    #     marker_color="#20c997",
+    #     marker_size=13,
+    #     marker_line_width=2,
+    #     marker_symbol="x",
+    #     name="Ошибка измерения",
+    #     hoverinfo="skip",
+    # )
     fig.update_layout(
         legend=dict(
             yanchor="top",
