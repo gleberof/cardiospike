@@ -29,8 +29,8 @@ services:
       - $WEB_PORT:$WEB_PORT
     environment:
       - API_HOST=api
-      - WORKERS=$WORKERS
-      - THREADS=$THREADS
+      - WORKERS=2
+      - THREADS=2
       - FLASK_DEBUG=1
     networks:
       - api
