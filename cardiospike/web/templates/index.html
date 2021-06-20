@@ -19,8 +19,6 @@
             $.getJSON({
                 url: "/callback", data: {'data': selection}, success: function (graph_json) {
                     Plotly.newPlot('chart', graph_json, {});
-
-
                 }
             });
         }
@@ -46,8 +44,8 @@
         <div style="color: #1940ff; margin-bottom: 20px">
             <h4>Образец</h4>
         </div>
-        <select id="Samples" size="19" width="20" class="scrollable" , onchange="js_callback(this.value)"
-                style="border-color: #1940ff; border-width: medium; border-radius: 6px"
+        <select id="Samples" size="19" width="20" class="scrollable; flexcroll" , onchange="js_callback(this.value)"
+                style="border-color: #1940ff; border-width: medium; border-radius: 5px"
         >
             {% for user in users %}
             <option>{{ user }}</option>
@@ -62,7 +60,6 @@
     </div>
 
 </div>
-<br>
 <br>
 <br>
 <div style="color: #1940ff; text-align: left; font-size: large">

@@ -16,7 +16,33 @@ body {
     text-align: left;
     background-color: #f8f9fa;
 }
-*::-webkit-scrollbar-thumb {
-    background: #1940FF;
-    border-radius: 8px;
+/**::-webkit-scrollbar-thumb {*/
+/*    background: #1940FF;*/
+/*    border-radius: 8px;*/
+/*}*/
+.flexcroll{ width:60px;
+            height:410px;
+            overflow:scroll;
+           }
+.flexcroll{
+    scrollbar-face-color: #1940ff;
+    scrollbar-shadow-color: #FFFFFF;
+    scrollbar-highlight-color: #FFFFFF;
+    scrollbar-3dlight-color: #FFFFFF;
+    scrollbar-darkshadow-color: #FFFFFF;
+    scrollbar-track-color: #FFFFFF;
+    scrollbar-arrow-color: #FFFFFF;
+}
+
+/* Let's get this party started */
+.flexcroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Handle */
+.flexcroll::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 12px;
+    background: #1940ff;
+    border-width: medium;
 }
