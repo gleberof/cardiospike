@@ -22,11 +22,9 @@ def plot_rr(t, anomaly_thresh=0.4):
     num_anomalies = anomaly_count(is_anomaly_mask)
 
     anomaly_proba = t["anomaly_proba"].values
-    anomaly_color = anomaly_proba ** 2
+    # anomaly_color = anomaly_proba ** 2
     anomaly_size = anomaly_proba.copy() * 20
     anomaly_size[~is_anomaly_mask] = 0
-
-    anomaly_opacity = is_anomaly_mask.astype("int")
 
     plot_name = "RR Ритмограмма. Все чисто!" if num_anomalies == 0 else f"RR Ритмограмма. ❗ Аномалий: {num_anomalies} ❗"
     anomaly_text = [f"{p:.0%}" for p in anomaly_proba]
@@ -35,14 +33,14 @@ def plot_rr(t, anomaly_thresh=0.4):
 
     fig.add_scatter(x=t["time"], y=t["x"], line_color="#e83e8c", line_width=3, name="RR-интервал")
     fig.add_scatter(
-        x=t["time"],
-        y=t["x"],
+        x=t["time"][is_anomaly_mask],
+        y=t["x"][is_anomaly_mask],
         mode="markers",
-        marker_color=anomaly_color,
-        marker_size=anomaly_size,
-        marker_colorscale=[[0.0, "#e83e8c"], [anomaly_thresh, "#e83e8c"], [1.0, "#ffc107"]],
-        marker_line=dict(color="#dc3545", width=3 * anomaly_proba),
-        marker_opacity=anomaly_opacity,
+        marker_color="#ffc107",
+        marker_size=anomaly_proba[is_anomaly_mask] * 20,
+        # marker_colorscale=[[0.0, "#e83e8c"], [anomaly_thresh, "#e83e8c"], [1.0, "#ffc107"]],
+        marker_line=dict(color="#dc3545", width=3 * anomaly_proba[is_anomaly_mask]),
+        marker_opacity=anomaly_proba[is_anomaly_mask],
         name="Аномалия",
         text=anomaly_text,
         hovertemplate="%{text}",
