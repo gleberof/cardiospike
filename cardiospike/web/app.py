@@ -67,6 +67,10 @@ def process_sample(sample=DEFAULT_SAMPLE):
     t = df.loc[df["id"] == int(sample)].sort_values("time").reset_index(drop=True)
     results = get_predictions(sample, t["x"].tolist())
 
+    if results is None:
+        t_ = t.copy()[:0]
+        return plot_rr(t_, anomaly_thresh=0.5)
+
     anomaly_thresh = results["anomaly_thresh"]
 
     t["anomaly_proba"] = results["anomaly_proba"]
