@@ -32,7 +32,7 @@ def plot_rr(t, anomaly_thresh=0.4, study_id=None):
         if num_anomalies == 0
         else f"{plot_name_prefix}. ❗ Аномалий: {num_anomalies} ❗"
     )
-    anomaly_text = [f"{p:.0%}" for p in anomaly_proba]
+    anomaly_text = [f"{p:.0%}" for p in anomaly_proba[is_anomaly_mask]]
 
     fig = go.Figure()
 
