@@ -31,9 +31,9 @@ def plot_rr(t, anomaly_thresh=0.4):
 
     fig = go.Figure()
 
-    fig.add_scatter(x=t["time"], y=t["x"], line_color="#e83e8c", line_width=3, name="RR-интервал")
+    fig.add_scatter(x=t["time"] / 1000, y=t["x"], line_color="#e83e8c", line_width=3, name="RR-интервал")
     fig.add_scatter(
-        x=t["time"][is_anomaly_mask],
+        x=t["time"][is_anomaly_mask] / 1000,
         y=t["x"][is_anomaly_mask],
         mode="markers",
         marker_color="#ffc107",
@@ -75,7 +75,7 @@ def plot_rr(t, anomaly_thresh=0.4):
         title_font_size=20,
         plot_bgcolor="#f8f9fa",
         paper_bgcolor="#f8f9fa",
-        xaxis_title_text="Время, мс",
+        xaxis_title_text="Время, с",
         yaxis_title_text="RR-интервал, мс",
         margin=go.layout.Margin(
             l=100,  # left margin
