@@ -68,8 +68,7 @@ def process_sample(sample=DEFAULT_SAMPLE):
     results = get_predictions(sample, t["x"].tolist())
 
     if results is None:
-        t_ = t.copy()[:0]
-        return plot_rr(t_, anomaly_thresh=0.5)
+        return None
 
     anomaly_thresh = results["anomaly_thresh"]
 
