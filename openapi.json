@@ -1,51 +1,51 @@
 {
-  "openapi":"3.0.2",
-  "info":{
-    "title":"CardioSpike API",
-    "version":"0.1.0"
+  "openapi": "3.0.2",
+  "info": {
+    "title": "CardioSpike API",
+    "version": "0.1.0"
   },
-  "paths":{
-    "/predict":{
-      "post":{
-        "summary":"Predict",
-        "operationId":"predict_predict_post",
-        "requestBody":{
-          "content":{
-            "application/json":{
-              "schema":{
-                "$ref":"#/components/schemas/RR"
+  "paths": {
+    "/predict": {
+      "post": {
+        "summary": "Predict",
+        "operationId": "predict_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RR"
               }
             }
           },
-          "required":true
+          "required": true
         },
-        "responses":{
-          "200":{
-            "description":"Successful Response",
-            "content":{
-              "application/json":{
-                "schema":{
-                  "$ref":"#/components/schemas/Predictions"
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Predictions"
                 }
               }
             }
           },
-          "500":{
-            "description":"Internal Server Error",
-            "content":{
-              "application/json":{
-                "schema":{
-                  "$ref":"#/components/schemas/Model500"
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Model500"
                 }
               }
             }
           },
-          "422":{
-            "description":"Validation Error",
-            "content":{
-              "application/json":{
-                "schema":{
-                  "$ref":"#/components/schemas/HTTPValidationError"
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -54,105 +54,119 @@
       }
     }
   },
-  "components":{
-    "schemas":{
-      "HTTPValidationError":{
-        "title":"HTTPValidationError",
-        "type":"object",
-        "properties":{
-          "detail":{
-            "title":"Detail",
-            "type":"array",
-            "items":{
-              "$ref":"#/components/schemas/ValidationError"
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
             }
           }
         }
       },
-      "Model500":{
-        "title":"Model500",
-        "required":[
+      "Model500": {
+        "title": "Model500",
+        "required": [
           "message"
         ],
-        "type":"object",
-        "properties":{
-          "message":{
-            "title":"Message",
-            "type":"string"
+        "type": "object",
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
           }
         }
       },
-      "Predictions":{
-        "title":"Predictions",
-        "required":[
+      "Predictions": {
+        "title": "Predictions",
+        "required": [
           "study",
-          "predictions",
-          "errors"
+          "anomaly_proba",
+          "anomaly_thresh",
+          "errors",
+          "error_thresh"
         ],
-        "type":"object",
-        "properties":{
-          "study":{
-            "title":"study",
-            "type":"string",
-            "description":"unique rr study identifier",
-            "example":"user_id_0"
+        "type": "object",
+        "properties": {
+          "study": {
+            "title": "study",
+            "type": "string",
+            "description": "unique rr study identifier",
+            "example": "user_id_0"
           },
-          "predictions":{
-            "title":"predictions",
-            "type":"array",
-            "items":{
-              "type":"integer"
+          "anomaly_proba": {
+            "title": "Anomaly Probabilities",
+            "type": "array",
+            "items": {
+              "type": "number"
             },
-            "description":"list of anomaly predictions (0 or 1)",
-            "example":[
-              0,
+            "description": "list of anomaly prediction probabilities",
+            "example": [
+              0.5,
+              0.2,
+              1.0,
+              0.2,
+              0.8,
+              0.1
+            ]
+          },
+          "anomaly_thresh": {
+            "title": "Anomaly Threshold",
+            "type": "number",
+            "description": "threshold for anomaly probabilities separation to `detected` and `not detected`",
+            "example": 0.4
+          },
+          "errors": {
+            "title": "Observation Error",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "list of observation errors predicted by the model (0 or 1)",
+            "example": [
               0,
               1,
+              0,
               1,
               1,
               0
             ]
           },
-          "errors":{
-            "title":"errors",
-            "type":"array",
-            "items":{
-              "type":"integer"
-            },
-            "description":"list errors (0 or 1)",
-            "example":[
-              1,
-              0,
-              0,
-              0,
-              0,
-              0
-            ]
+          "error_thresh": {
+            "title": "Error Threshold",
+            "type": "number",
+            "description": "threshold for error probabilities separation to `detected` and `not detected` ",
+            "example": 0.4
           }
         }
       },
-      "RR":{
-        "title":"RR",
-        "required":[
+      "RR": {
+        "title": "RR",
+        "required": [
           "study",
           "sequence"
         ],
-        "type":"object",
-        "properties":{
-          "study":{
-            "title":"study",
-            "type":"string",
-            "description":"unique rr study identifier",
-            "example":"user_id_0"
+        "type": "object",
+        "properties": {
+          "study": {
+            "title": "study",
+            "type": "string",
+            "description": "unique rr study identifier",
+            "example": "user_id_0"
           },
-          "sequence":{
-            "title":"sequence",
-            "type":"array",
-            "items":{
-              "type":"integer"
+          "sequence": {
+            "title": "Sequence",
+            "type": "array",
+            "items": {
+              "type": "integer"
             },
-            "description":"RR intervals in milliseconds",
-            "example":[
+            "description": "RR intervals in milliseconds",
+            "example": [
               200,
               300,
               200,
@@ -163,29 +177,29 @@
           }
         }
       },
-      "ValidationError":{
-        "title":"ValidationError",
-        "required":[
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": [
           "loc",
           "msg",
           "type"
         ],
-        "type":"object",
-        "properties":{
-          "loc":{
-            "title":"Location",
-            "type":"array",
-            "items":{
-              "type":"string"
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           },
-          "msg":{
-            "title":"Message",
-            "type":"string"
+          "msg": {
+            "title": "Message",
+            "type": "string"
           },
-          "type":{
-            "title":"Error Type",
-            "type":"string"
+          "type": {
+            "title": "Error Type",
+            "type": "string"
           }
         }
       }
