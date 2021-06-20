@@ -16,9 +16,20 @@
 Python, Optuna, Hydra, Pytorch, Pytorch-Lightning, Sklearn, Pandas, Numpy, Plotly, Flask, FastAPI, Poetry
 
 ## Демо
-[Демо-версия веб-приложения](http://сердечный-друг.рф/)
+[Веб-приложение](http://сердечный-друг.рф/)
 
 [Онлайн-документация REST API](http://сердечный-друг.рф:5000)
+
+### Локальный запуск веб-приложения
+Скопировать `.env.example` в `.env`:
+```bash
+cp .env.example .env
+```
+Поднять приложение:
+```bash
+docker-compose up
+```
+Оно станет доступным в браузере (по умолчанию - `localhost:8000`).
 
 ## Установка
 
@@ -37,13 +48,7 @@ pyenv install 3.8.6
 poetry install
 poetry run pre-commit install  # для разработки
 ```
-Скопировать `.env.example` в `.env` и заполнить пропущенные значения
-
-Установите `nvidia-container-toolkit` для работы с Docker и GPU
-
-## Запуск веб-приложения
-Скопировать `.env.example` в `.env` и заполнить пропущенные значения.
-Выполнить:
+Скопировать `.env.example` в `.env`:
 ```bash
-docker-compose up
+cp .env.example .env
 ```
