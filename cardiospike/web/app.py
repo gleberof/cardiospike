@@ -75,7 +75,7 @@ def process_sample(sample=DEFAULT_SAMPLE):
     t["anomaly_proba"] = results["anomaly_proba"]
     t["error"] = results["errors"]
 
-    fig, num_anomalies = plot_rr(t, anomaly_thresh=anomaly_thresh)
+    fig, num_anomalies = plot_rr(t, anomaly_thresh=anomaly_thresh, study_id=results["study"])
 
     graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 

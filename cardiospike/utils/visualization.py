@@ -14,7 +14,7 @@ def anomaly_count(array_predictions):
     return count
 
 
-def plot_rr(t, anomaly_thresh=0.4):
+def plot_rr(t, anomaly_thresh=0.4, study_id=None):
 
     is_anomaly_mask = t["anomaly_proba"] > anomaly_thresh
     # is_error_mask = t["error"] == 1
@@ -25,8 +25,13 @@ def plot_rr(t, anomaly_thresh=0.4):
     # anomaly_color = anomaly_proba ** 2
     anomaly_size = anomaly_proba.copy() * 20
     anomaly_size[~is_anomaly_mask] = 0
-
-    plot_name = "RR-ритмограмма. Все чисто!" if num_anomalies == 0 else f"RR-ритмограмма. ❗ Аномалий: {num_anomalies} ❗"
+    study_id_postfix = f" образца {study_id}" if study_id is not None else ""
+    plot_name_prefix = f"RR-ритмограмма{study_id_postfix}"
+    plot_name = (
+        f"{plot_name_prefix}. Все чисто!"
+        if num_anomalies == 0
+        else f"{plot_name_prefix}. ❗ Аномалий: {num_anomalies} ❗"
+    )
     anomaly_text = [f"{p:.0%}" for p in anomaly_proba]
 
     fig = go.Figure()
