@@ -18,6 +18,7 @@ services:
     env_file:
       - .env
     command: "uvicorn cardiospike.api.app:app --port $API_PORT --host 0.0.0.0 --reload"
+    restart: on-failure
 
   web:
     container_name: web
@@ -43,6 +44,7 @@ services:
     env_file:
       - .env
     command: "gunicorn --workers=$WORKERS --threads=$THREADS cardiospike.web.app:app --bind 0.0.0.0:$WEB_PORT --reload"
+    restart: on-failure
 
 networks:
   api:
