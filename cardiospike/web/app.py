@@ -42,7 +42,6 @@ def js_callback():
 
 @app.route("/")
 def index():
-
     return render_template("index.html", graphJSON=process_sample(), users=users)
 
 
@@ -64,22 +63,26 @@ def get_predictions(study: str, sequence: List[int]):
 
 
 def process_sample(sample=DEFAULT_SAMPLE):
-    t = df.loc[df["id"] == int(sample)].sort_values("time").reset_index(drop=True)
-    results = get_predictions(sample, t["x"].tolist())
+    try:
+        t = df.loc[df["id"] == int(sample)].sort_values("time").reset_index(drop=True)
+        results = get_predictions(sample, t["x"].tolist())
 
-    if results is None:
-        return None
+        if results is None:
+            return None
 
-    anomaly_thresh = results["anomaly_thresh"]
+        anomaly_thresh = results["anomaly_thresh"]
 
-    t["anomaly_proba"] = results["anomaly_proba"]
-    t["error"] = results["errors"]
+        t["anomaly_proba"] = results["anomaly_proba"]
+        t["error"] = results["errors"]
 
-    fig, num_anomalies = plot_rr(t, anomaly_thresh=anomaly_thresh, study_id=results["study"])
+        fig, num_anomalies = plot_rr(t, anomaly_thresh=anomaly_thresh, study_id=results["study"])
 
-    graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return graph_json
+        return graph_json
+
+    except:  # noqa
+        return 500
 
 
 if __name__ == "__main__":

@@ -19,6 +19,8 @@
             $.getJSON({
                 url: "/callback", data: {'data': selection}, success: function (graph_json) {
                     Plotly.newPlot('chart', graph_json, {});
+                }, error: function () {
+                    alert("Ой! Что-то пошло не так")
                 }
             });
         }

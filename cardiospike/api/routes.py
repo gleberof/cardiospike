@@ -1,3 +1,5 @@
+import pprint
+
 from fastapi import APIRouter, HTTPException
 
 from cardiospike import SMART_MODEL_PATH
@@ -8,6 +10,7 @@ router = APIRouter()
 
 model = SmartModel(str(SMART_MODEL_PATH))
 
+
 #
 # @app.get("/")
 # def index():
@@ -16,6 +19,8 @@ model = SmartModel(str(SMART_MODEL_PATH))
 
 @router.post("/predict", responses={200: {"model": Predictions}, 500: {"model": Model500}})
 def predict(rr: RR):
+    print("Received")
+    pprint.pprint(rr)
     try:
         anomaly_proba, anomaly_thresh, errors, error_thresh = model.predict(rr.sequence)
 
